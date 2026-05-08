@@ -7,15 +7,14 @@ module mux4x1( input a, b, c, d, s0, s1, output reg y );///////defining I/O's
     begin
       case( s0 | s1 ) //////// case for selection inputs 
         
-        2'b00 : $display( "Input A");
-        2'b01 : $display( "Input B");
-        2'b10 : $display( "Input C");
-        2'b11 : $display( "Input D");
+        2'b00 : y <= a;
+        2'b01 : y <= b;
+        2'b10 : y <= c;
+        2'b11 : y <= d;
         
       endcase
     end
 endmodule
-
 
 ///////////TestBench////////////
 
@@ -34,6 +33,10 @@ module MUX4X1_tb;
   initial 
     begin
       
+      $dumpfile("mux4x1.vcd");
+      $dumpvars( 0, MUX4X1_tb );// to view waveform
+      
+      
       a = 1;
       b = 0;
       c = 1;
@@ -51,4 +54,3 @@ module MUX4X1_tb;
         end
     end
 endmodule
-          
