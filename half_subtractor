@@ -1,0 +1,64 @@
+/////////////// DESIGN FLOW ///////////////
+
+////////////behavioural-level modeling////////////
+
+module Half_Sub( input a, b, output reg dif, bor); // I/O's
+
+  always@(*)
+    begin
+      dif = a ^ b; // difference bool exp
+      bor = (~a) & b; // borrow bool exp
+    end
+
+endmodule
+
+
+////////////gate-level modeling////////////
+
+module Half_Sub( input a, b, output reg dif, bor); // I/O's
+
+  wire z;
+
+  xor( dif, a, b ); //difference
+  not( z, a );
+  and( bor, z, b ); //borrow
+
+endmodule
+
+
+////////////data-flow level modeling////////////
+
+module Half_Sub( input a, b, output dif, bor); // I/O's
+
+  assign dif = a ^ b;
+  assign bor = ~a & b;
+
+endmodule
+
+
+//////////////// TEST BENCH ///////////////
+module halfsub_tb ;
+  reg a;
+  reg b; // input registers
+  wire dif;
+  wire bor;// output wires
+
+  Half_Sub uut ( a, b, dif, bor ); // unit under test 
+
+  initial
+    begin
+
+	  $dumpfile("Half_Sub.vcd");
+      $dumpvars(0, halfsub_tb);
+
+      $monitor( "$time = %0t,| a = %b, b = %b | difference = %b, borrow = %b",$time, a, b, dif, bor );// monitor outputs 
+
+      // 4 test cases
+      a = 0; b = 0;     //expect d:0,b:0
+      #3 a = 0; b = 1;  //expect d:1,b:1
+      #3 a = 1; b = 0;  //expect d:1,b:0
+      #3 a = 1; b = 1;  //expect d:0,b:1
+
+       $finish;
+    end
+endmodule
