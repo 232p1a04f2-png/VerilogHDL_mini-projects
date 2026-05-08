@@ -1,0 +1,82 @@
+//////////////////// FULL_ADDER////////////////////
+
+//////  gate-leveling modelling   ///////
+
+module F_Adder(
+input a,b,c,                     //  inputs
+output sum,carry      // outputs
+);
+
+wire m,n,o;                    // wires
+xor(m,a,b);
+xor(sum,m,c);
+and(n,a,b);
+and(o,m,c);
+or(carry,o,n);
+
+endmodule
+
+
+
+
+/////   behavioural-level modelling  //////
+module F_Adder(
+
+input a, b, c, // inputs
+output reg sum, carry //outputs
+
+);
+
+always @( * ) begin // "*" all inputs includes
+{ carry , sum } = a+b+c; // addition
+
+end
+
+endmodule
+
+
+
+////// data-flow-level modelling    //////
+module F_Adder(
+
+input a, b, c, // inputs
+output reg sum, carry //outputs
+
+);
+
+assign {carry,sum} = a + b + c; // continuous assignment using concatenation operator
+
+endmodule
+
+
+
+
+////////// TEST BENCH //////////
+
+
+module fulladder_tb;
+reg a, b, c; // registers
+wire sum, carry; //wires
+
+F_Adder dut( a, b, c, sum, carry); // device under test(dut)
+
+initial
+begin
+
+$monitor(" time = %0t, | a = %b, b = %b, c = %b, | sum = %b, carry = %b ",$time, a, b, c, sum, carry); // monitor for seeing outputs
+
+// exhaustive all possible 8 combinations
+
+a = 0; b = 0; c = 0;
+#5 a = 0; b = 0; c = 1;
+#5 a = 0; b = 1; c = 0;
+#5 a = 0; b = 1; c = 1;
+#5 a = 1; b = 0; c = 0;
+#5 a = 1; b = 0; c = 1;
+#5 a = 1; b = 1; c = 0;
+#5 a = 1; b = 1; c = 1;
+
+
+#10 $finish; // simulation ends
+end
+endmodule
