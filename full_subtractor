@@ -1,0 +1,80 @@
+////////// gate-level modeling /////////// 
+
+module FullSub( input a, b, c, output dif, bor );  // I/O's
+  
+  wire p,q,r,s,t; //wires
+  
+  xor(p, a, b);
+  xor (dif, p, c);   //difference
+  not (q, a);
+  not (r, p);
+  and (s, a, b);
+  and (t, r, c);
+  or (bor, s, t);   //borrow
+  
+endmodule
+
+
+////////// data flow modeling /////////// 
+
+module FullSub( input a, b, c, output dif, bor );  // I/O's
+  
+  wire p,q,r,s,t; //wires
+  
+  assign dif = a ^ b ^ c;
+  assign bor = (~a & b) | (~a & c) | (b & c);
+  
+endmodule
+
+
+////////// behavioural modeling /////////// 
+
+module FullSub( input a, b, c, output reg dif, bor );  // I/O's
+  
+  wire p,q,r,s,t; //wires
+  
+  always @ ( * ) 
+    begin
+  
+   dif = a ^ b ^ c;
+   bor = (~a & b) | (~a & c) | (b & c);
+      
+    end
+  
+endmodule
+
+
+v///////// testbench ///////////
+module full_sub_tb;
+  
+  reg  a;  // registers a, b, c
+  reg  b;
+  reg  c;
+  
+  wire  dif;  // wires dif, bor
+  wire  bor;
+  
+  FullSub dut ( a, b, c, dif, bor ); // Instantiate dut
+
+  
+  initial 
+    begin
+       
+      $dumpfile( "FullSub.vcd" ); // creates vcd file
+      $dumpvars( 0, full_sub_tb ); // to view waveform
+      
+      
+      $monitor( " Time = %0t | a = %b b = %b c = %b | difference = %b  borrow = %b ", $time, a, b, c, dif, bor );  // to display outputs with mentioned inputs
+      
+       a = 0; b = 0; c = 0; // expect 0 0 
+     #10 a = 0; b = 0; c = 1; // expect 1 1 
+     #10 a = 0; b = 1; c = 0; // expect 1 1 
+     #10 a = 0; b = 1; c = 1; // expect 0 1 
+     #10 a = 1; b = 0; c = 0; // expect 1 0 
+     #10 a = 1; b = 0; c = 1; // expect 0 0 
+     #10 a = 1; b = 1; c = 0; // expect 0 0 
+     #10 a = 1; b = 1; c = 1; // expect 1 1 
+      
+     #10 $finish;
+    end
+endmodule
