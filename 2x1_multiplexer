@@ -1,0 +1,38 @@
+/////////// data-flow modeling /////////
+
+module mux2x1( input s, a, b,  output reg y ); //////defining I/O,s
+  
+  
+  ///// 2x1 mux bool exression 
+  assign y = ( ~s & a ) | ( s & b);
+  
+endmodule
+
+///////// test bench ///////////
+
+module M2x1_tb;
+  
+  reg s, a, b;
+  wire y;
+  integer i;
+  
+  mux2x1 dut( s, a, b, y );
+  
+  initial 
+    
+    $monitor( " Time = %0t | A = %b | B = %b | Selected line = %b | Yout = %b", $time, a, b, s, y );
+  
+  initial 
+    begin
+      
+      a = 0;
+      b = 1;
+      
+      for( i = 0; i < 4; i = i + 1 );
+      
+      begin #5;
+        
+        {s} = i;
+      end
+    end
+endmodule
