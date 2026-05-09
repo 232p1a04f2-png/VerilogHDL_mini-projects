@@ -1,0 +1,79 @@
+
+
+/////////// data-flow modeling /////////
+
+//////////// designing 8x1 mux using two 4x1 and one 2x1 mux /////////
+
+//////// 2x1mux ///////////
+
+module mux2x1( input s, a, b,  output reg y ); //////defining I/O,s
+  
+  
+  ///// 2x1 mux bool exression 
+  assign y = ( ~s & a ) | ( s & b);
+  
+endmodule
+
+////////4x1mux/////////
+
+module mux4x1( d, sel, y );//////defining I/O,s
+  
+  input [3:0] d;
+  input [1:0] sel;//////defining Inputs
+  
+  output y; /////////// defining output
+  
+  assign y = sel[1] ? ( sel[0] ? d[3] : d[2] ) : ( sel[0] ? d[1] : d[0] );/////////condition for selection
+  
+endmodule
+
+///////// 8x1 mux /////////
+
+module mux8x1( d, sel, y );//////defining I/O,s
+  
+  input [7:0]d; /////// 8 inputs
+  input [2:0]sel; //////// 3 selection lines
+  
+  output y; ///////// 1 output 
+  
+  wire [1:0]w; //////// 2 wires internally 
+  
+  mux4x1 u1( d[7:4], sel[2:1], w[1] );///// 4x1 mux 4 - i/ps, 2 - selection lines, 1 - wire  
+  mux4x1 u2( d[3:0], sel[2:1], w[0] );///// 4x1 mux 4 - i/ps, 2 - selection lines, 1 - wire 
+  mux2x1 u3( w[1], w[0], sel[0], y);///// 2x1 mux 2 - i/ps, 1 - selection lines, 1 - out 
+  
+endmodule
+
+
+///////// Test bench /////////
+
+module Mux8x1_tb;
+  
+  reg [7:0]d; //////defining Inputs
+  reg [2:0]sel; //////// 3 selection lines
+  
+  wire out;/////////// defining output
+  
+  integer i;
+  
+  mux8x1 dut( d, sel, y ); //// device under test
+  
+  initial 
+    
+    $monitor( " Time : %0t | D : %b | Selection : %b | Output Y : %b ", $time, d, sel, y ); ///////// displaying input, selection line, and output 
+  
+  initial 
+    begin
+      
+      d = 8'b01110101; //////// predefining input
+      
+      for( i = 0; i < 8; i = i + 1 ) ///// loop condition 
+        
+        begin 
+          #5;////// time delay 
+          
+          sel = i; /////// integer
+          
+        end
+    end
+endmodule
