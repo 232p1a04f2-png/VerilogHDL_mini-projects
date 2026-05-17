@@ -1,0 +1,68 @@
+/////// 3 to 8 decoder behavioural modeling ////////
+
+module decoder38( in,out, en); ////// assigning I/o's
+  
+  input [2:0] in; //////// assigning 3 inputs
+  input en;  //////// assigning enable
+  output [7:0] out;///////assigning 8 outputs 
+  reg [7:0] out; //////// assigning output register
+  
+  
+  always @( in or en)/////// behavioural module
+    
+    begin 
+      
+      if (en)   ///////// if statement when enable
+    begin
+      
+    out=8'd0;
+      
+      case (in)///// case statement 
+        3'b000: out[0]=1'b1; /////// 3 bits decimal input 
+        3'b001: out[1]=1'b1;
+        3'b010: out[2]=1'b1;
+        3'b011: out[3]=1'b1;
+        3'b100: out[4]=1'b1;
+        3'b101: out[5]=1'b1;
+        3'b110: out[6]=1'b1;
+        3'b111: out[7]=1'b1;
+        
+        default: out=8'd0; //////// 8 bit binary output
+        
+      endcase
+    end else
+      
+      out=8'd0; end
+  
+endmodule
+
+
+
+////// test bench //////// 
+
+module decoder_tb;
+  
+  wire[7:0]out; /////// assigning output wires
+  reg en; ///// assigning enable
+  reg[2:0]in; /////// assigning inputs
+  
+  integer i; ////// variable - forloop
+  
+  decoder38 dut( in, out, en ); ///// device under test 
+  
+  initial begin
+    
+    $dumpfile("decoder38.vcd"); ////// vcd file for representing waveform
+    $dumpvars( 0, decoder_tb );
+    
+    $monitor( "Time : %0t || Enable : %b || Input : %d || Output : %b", $time, en, in, out ); ////// displaying time, I/O's, enable
+    
+    for( i = 0; i < 16; i = i + 1 ) ///// for loop for 16 possibilities
+      
+      begin
+        
+        {en, in} = i; //////// initializing i value 
+        
+        #1;end
+  end
+endmodule
