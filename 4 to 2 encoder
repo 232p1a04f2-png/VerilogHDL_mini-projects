@@ -1,0 +1,49 @@
+
+////////// 4 to 2 encoder dataflow modeling //////// 
+
+module encoder42(
+  
+  input d0,
+  input d1,
+  input d2,
+  input d3,
+  output y0,
+  output y1
+  
+); ////// assigning 4-bit input , 2-bit output 
+  
+  assign y0 = d1 | d3; //// assignig y0 output
+  assign y1 = d2 | d3; //// assignig y0 output
+  
+endmodule
+  
+
+///////// test bench /////////
+
+module decoder42_tb;
+  
+  reg d0, d1, d2, d3; ////// input registers
+  wire y0, y1; /////// output wires
+  
+  encoder42 dut( d0, d1, d2, d3, y0, y1 );
+  
+  initial 
+    begin
+      
+      $dumpfile( "encoder42.vcd" ); ////// waveform representation
+      $dumpvars( 0, decoder42_tb );
+      
+      
+      $monitor( " Time = %0t || Input = %b%b%b%b || Output = %b%b ", $time, d3, d2, d1, d0, y1, y0 ); ////// displaying inputs and outputs 
+      
+      d3 = 0; d2 = 0; d1 = 0; d0 = 1; ///// output : 00
+      
+      #10 d3 = 0; d2 = 0; d1 = 1; d0 = 0; ///// output : 01
+      
+      #10 d3 = 0; d2 = 1; d1 = 0; d0 = 0; ///// output : 10
+      
+      #10 d3 = 1; d2 = 0; d1 = 0; d0 = 0; ///// output : 11
+      
+      
+    end
+endmodule
