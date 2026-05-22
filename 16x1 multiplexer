@@ -1,0 +1,65 @@
+///////// 16 x 1 multiplexer using 4 x 1 multiplexer ////////////
+
+///////// 4 x 1 mux data-flow modeling
+
+module mux4x1 ( input [ 3 : 0 ]in, input [ 1 : 0 ]sel,  output out ); /////// assiging I/O's
+  
+  assign out = sel[1] ?  ( sel[ 0 ] ? in[ 3 ] : in[ 2 ] ) : ( sel[ 0 ] ? in[ 1 ] : in[ 0 ] );
+endmodule
+
+///////////// 16 x 1 mux using 4 x 1 mux
+
+module mux16x1( 
+  input [ 15 : 0 ]in, ////// assigning 16 bits inputs
+  input [ 3 : 0 ]sel, ////// assigning 4 bits selection lines
+  output out   ///// assiging 1 bit output
+);
+  
+  wire [4 : 1]w; /////// assiging outputs for each 4x1 mux
+  
+  
+  mux4x1 mux1( in[ 3 : 0 ],   sel[ 1 : 0 ], w[ 1 ] ); ////// mux1-->inputs(in0, in1, in 2, in3, sel1, sel0, output w1)
+  mux4x1 mux2( in[ 7 : 4 ],   sel[ 1 : 0 ], w[ 2 ] ); //////mux2-->inputs(in4, in5, in6, in7, sel1, sel0, output w2)
+  mux4x1 mux3( in[ 11 : 8 ],  sel[ 1 : 0 ], w[ 3 ] ); ////// mux3-->inputs(in8, in9, in 10, in11, sel1, sel0, output w3)
+  mux4x1 mux4( in[ 15 : 12 ], sel[ 1 : 0 ], w[ 4 ] ); ////// mux4-->inputs(in12, in13, in 14, in15, sel1, sel0, output w4)
+  
+  mux4x1 mux5( w[ 4 : 1 ],    sel[ 3 : 2 ], out ); ////// ,mux5-->inputs w{1,2,3,4}, sel3, sel2, output out)
+  
+endmodule
+
+
+/////////// test bench //////////
+
+module mux16x1x4x1;
+  
+  reg [ 15 : 0 ]in;//////// assiging inputs 16 bit
+  reg [ 3 : 0 ] sel; ///////  assiging selection lines 4 bit
+  wire out; ////// assiging output
+  
+  integer i; ///// taking integer variable for for loop
+  
+  mux16x1 dut ( in, sel, out);
+  
+  initial
+    
+    $monitor("Time : %0t || Inputs : %b || Selection Line : %b || Outputs : %b ", $time, in, sel, out ); ////// displaying time, input, selection lines and output
+  
+  initial
+    begin
+      
+      $dumpfile("mux16x1.vcd");///// importing vcd file
+      $dumpvars( 0, mux16x1x4x1 );////// displaying waveforms 
+      
+      in=16'b1000100010001000; /////// predefining input
+      
+      for( i = 0; i < 16; i = i + 1 ) ////// for loop ---> selection lines 
+    
+    begin
+      
+      #5;
+      
+      sel = i; ////// i for selection
+    end
+    end
+endmodule
+
