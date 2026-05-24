@@ -1,0 +1,217 @@
+////// 16bit ALU behavioural modelling //////
+
+module alu16( opcode, inA, inB, result, flagc, flagz, sign );/////// assigning I/O's
+  
+  input [4:0]opcode;///// 5-bit opcode
+  input [15:0]inA,inB;////// 16-bit inputs
+  output reg [31:0]result;/////// 32-bit result
+  output reg flagz = 1'b0, flagc = 1'b0, sign = 1'b0;////// 1-bit for carry flag, zero falg and sign for compare
+  
+  
+  parameter [4:0] ///// 5-bit parameters
+  ADD  = 5'b00000,/////// opcode for addition operation
+  SUB  = 5'b00001,/////// opcode for subtraction operation
+  MUL  = 5'b00010,/////// opcode for multiplication operation
+  DIV  = 5'b00011,/////// opcode for division operation
+  MAC  = 5'b00100,/////// opcode for multiply and accummlate operation
+  AND = 5'b00101,/////// opcode for AND opertion
+  OR  = 5'b00110,/////// opcode for OR operation
+  XOR = 5'b00111,/////// opcode for XOR operation
+  XNOR= 5'b01000,/////// opcode for XNOR operation
+  NOT = 5'b01001,/////// opcode for NOT operation
+  SHL  = 5'b01010,/////// opcode for shift left operation
+  SHR  = 5'b01011,/////// opcode for shift right operation
+  ASHR = 5'b01100,/////// opcode for arithematic shift right operation
+  ROL  = 5'b01101,/////// opcode for rotate left operation
+  CMP  = 5'b01110,/////// opcode for comapre operation
+  ASHL = 5'b01111,/////// opcode for arithematic shift right operation
+  ROR = 5'b10000;/////// opcode for rotate right operation
+  
+  always@(*) //////// behavioural modelling
+    begin
+      
+      case(opcode)
+        
+        ADD: ////// case for addition
+          begin
+          result = inA + inB;
+          flagc = result[16];
+            flagz = (result == 32'b0);
+        end
+        
+         SUB: ///// case for subtaction
+           begin
+          result = inA - inB;
+          flagc = result[16];
+             flagz = (result == 32'b0);
+        end
+        
+        MUL:///// case for multiplication
+           begin
+          result = inA * inB;
+          flagc = result[16];
+             flagz = (result == 32'b0);
+        end
+        
+        DIV: ///// case for division
+           begin
+          result = inA / inB;
+          flagc = result[16];
+             flagz = (result == 32'b0);
+        end
+        
+       MAC: ///// case for multiply and accummlator
+           begin
+             result = (inA * inB);
+          flagc = result[16];
+             flagz = (result == 32'b0);
+        end
+        
+        AND: ///// case for AND operation
+           begin
+          result = inA & inB;
+          flagc = result[16];
+             flagz = (result == 32'b0);
+        end
+        
+        OR: ///// case for OR operation
+           begin
+          result = inA | inB;
+          flagc = result[16];
+             flagz = (result == 32'b0);
+        end
+        
+        NOT: ///// case for NOT operation
+           begin
+             result = {~inA, ~inB};
+          flagc = result[16];
+             flagz = (result == 32'b0);
+        end
+        
+        XOR:  ///// case for XOR operation
+           begin
+          result = inA ^ inB;
+          flagc = result[16];
+             flagz = (result == 32'b0);
+        end
+        
+        XNOR:  ///// case for XNOR operation
+           begin
+          result = ~(inA ^ inB);
+             flagz = (result == 0);
+             flagc = 0;
+        end
+        
+        SHL: ///// case for shift left
+           begin
+             result = {(inA << 1), (inB << 1)};
+          flagc = result[16];
+             flagz = (result == 32'b0);
+        end
+        
+        SHR: ///// case for shift right 
+           begin
+             result = {(inA >> 1), (inB >> 1)};
+          flagc = result[16];
+             flagz = (result == 32'b0);
+        end
+        
+        ASHR: ///// case for arithematic shift right 
+           begin
+             result = {(inA >>> 1), (inB >>> 1)};
+          flagc = result[16];
+             flagz = (result == 32'b0);
+        end
+        
+        ASHL: ///// case for arithematic shift left 
+           begin
+             result = {(inA <<< 1), (inB <<< 1)};
+          flagc = result[16];
+             flagz = (result == 32'b0);
+        end
+        
+        ROR: ///// case for rotate right
+           begin
+             result = {{inA[0], inA[15:1]},
+                       {inB[0], inB[15:1]}};
+          flagc = result[16];
+             flagz = (result == 32'b0);
+        end
+        
+         
+        ROL: ///// case for left
+           begin
+             result = {{inA[14:0], inA[15]},
+                       {inB[14:0], inB[15]}};
+          flagc = result[16];
+             flagz = (result == 32'b0);
+        end
+        
+         
+        CMP: ///// case for compare operation
+          begin
+            result = inA - inB;
+            flagz = (result == 0);
+            
+            if(result[31] == 1) ////// if statement for cmp
+              sign = 1;
+            else
+              sign = 0;
+            flagc = result[16];
+          end
+        
+        default:
+          begin
+          result=0; flagc=0; flagz=0;  ///// default result, flagc and flagz should be 0.
+        end
+      endcase
+    end
+endmodule
+
+
+
+/////// test bench //////////
+
+module Alu16_tb;
+  
+  reg [4:0]opcode; ////// assigning 5 bits for opcode
+  reg [15:0]inA,inB; ////// assigning 16 bits for inputs 
+  wire [31:0]result; /////// assigining 32 bit output
+  wire flagz, flagc, sign;
+  
+  integer i; /////variable - for loop
+  
+  alu16 dut(opcode, inA, inB, result, flagc, flagz, sign);////// device under test  
+  
+  initial
+    begin
+    
+    $monitor(" Time : %0t || Input-A : %d; Input-B : %d || Opcode : %d || Output : %d || Carry-Flag : %d || Zero-Flag : %d  ", $time, inA, inB, opcode, result, flagc, flagz); /////// displaying time, input, opcode, output, z-flag, c-flag
+  
+    end
+  
+  initial 
+    begin
+      
+      $dumpfile("alu16.vcd");////// generating waveforms through vcd files
+      $dumpvars( 0,Alu16_tb );
+      
+      opcode = 0;////// initially defining opcode as 0
+      
+      inA = 0;////// initially defining inA,inB as 0
+      inB = 0;
+      
+      #10;
+      
+      inA = 16'hed;////// predefining inA as 237
+      inB = 16'h16;////// predefining inA as 22
+      
+      for( i = 0; i <= 16; i = i + 1) /////// for loop for opcodes
+        
+        begin
+          #5; ///////// time delay for every operation
+          opcode = i;/////// opcode updating
+          
+        end
+    end
+endmodule
